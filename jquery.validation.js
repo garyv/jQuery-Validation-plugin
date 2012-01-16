@@ -29,7 +29,7 @@
                     }
                 });
                 if (!valid) {
-                    if (!$form.find('.' + options.feedbackClass)) {
+                    if (!$form.find('.' + options.feedbackClass).length) {
                         $form.prepend('<div class="' + options.feedbackClass + '"/>');
                     }
                     $form.find('.' + options.feedbackClass)
