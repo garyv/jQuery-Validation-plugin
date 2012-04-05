@@ -20,7 +20,6 @@
                 $form.find('[required]').each(function(i, field) {
                     if (valid && !field.value) {
                         valid = false;
-                        console.log(field)
                         $(field).trigger('focus').fadeOut().fadeIn();
                         if (field.id) {
                             $form.find('label[for="' + field.id + '"]')
