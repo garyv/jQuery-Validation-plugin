@@ -6,6 +6,8 @@
 // 2. Call $('form').validate();
 // 3. To change the message use $('form').validate({message: 'Your custom error message.'});
 
+// For full featured form validation, try http://parsleyjs.org instead
+
 (function($){
     var defaults = {
         message: 'Please fill in all required fields.',
