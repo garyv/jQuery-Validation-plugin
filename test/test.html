@@ -49,12 +49,12 @@
   </form>
 
   <!-- second test form -->
-  <h2>Newsletter Signup</h2>
+  <h2>Comment Form</h2>
 
-  <form id="signup" action="#submitted-signup">
+  <form id="comment" action="#submitted-comment">
     <p>
-      <label for="email">Email</label>
-      <input required name="email" id="email" placeholder="name@example.com" type="text">
+      <label for="comment">Comment</label>
+      <input required name="comment" id="comment" placeholder="Live long and prosper." type="text">
       <label for="password">Name <i>(optional)</i></label>
       <input name="name" id="name" placeholder="Max Power" type="text">
       <input type="submit" value="submit"/>
@@ -82,11 +82,11 @@
     form.validate();
   });
 
-  describe("Test introduction", function() {
-    it("Can make assertions", function() {
-      expect(true).toBe(true);
-    });
-  });
+  //describe("Test introduction", function() {
+  //  it("Can make assertions", function() {
+  //    expect(true).toBe(true);
+  //  });
+  //});
 
   describe("Login form with two required inputs", function() {
     var form = $('#login');
@@ -117,8 +117,8 @@
     });
   });
 
-  describe("Newsletter form has not been submitted", function() {
-    var form = $('#signup');
+  describe("Comment form has not been submitted", function() {
+    var form = $('#comment');
     var formAction = form.attr('action');
     var currentUrl = location.href;
     
@@ -168,7 +168,7 @@
     var form, requiredInput, formAction, currentLocation;;
 
     beforeEach(function() {
-      form = $('#signup');
+      form = $('#comment');
       requiredInput = form.find('input[required]');
       formAction = form.attr('action');
       currentLocation = location.href;

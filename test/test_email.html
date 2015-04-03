@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang='en-US'>
+<head>
+  <title>
+    Test HTML5 Form Validation with email
+  </title>
+  <meta charset='utf-8' />
+  <meta name='description' content='' />
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+  <link rel="canonical" href="https://garyv.s3.amazonaws.com/html5_validation/test/test_email.html" />
+  <script> // detect basic html5
+    document.documentElement.className = '' || document.querySelector && 
+    (window.addEventListener)? window.html5='html5': '';
+  </script>
+  <style> /* basic css styles */
+    body { margin: 1em; font-size: 1.0em; line-height: 1.25; }
+    body, button, input, select, textarea { font-family: Univers, Calibri, Gill Sans, Myriad Pro, Tahoma, Geneva, Helvetica Neue, sans-serif; color: rgb(3%, 3%, 3%); }
+    ::-moz-selection { background: rgb(0%, 20%, 98%); color: #fff; text-shadow: none; }
+    ::selection { background: rgb(0%, 20%, 98%); color: #fff; text-shadow: none; }
+    a { color: rgb(20%, 20%, 98%); }
+    a:visited { color: rgb(50%, 20%, 98%); }    
+    img, video {max-width: 100%; } 
+    .feedback {color: #d00; background: #ddd; border: 1px solid #c00; padding: 5px; }
+  </style>
+  <!-- http://evanhahn.com/how-do-i-jasmine/ -->
+  <!-- load Jasmine test files --> 
+  <link rel="stylesheet" href="lib/jasmine-2.1.3/jasmine.css">
+  <script src="lib/jasmine-2.1.3/jasmine.js"></script>
+  <script src="lib/jasmine-2.1.3/jasmine-html.js"></script>
+  <script src="lib/jasmine-2.1.3/boot.js"></script>
+</head>
+<body>
+  <h1>
+    Test HTML5 Form Validation with email
+  </h1>
+  
+  <!-- test form 4 -->
+  <h2>Signup Form</h2>
+
+  <form id="signup" action="#submitted-signup">
+    <p>
+      <label for="email">Email <i>(optional)</i></label>
+      <input name="email" id="email" placeholder="name@example.com" type="email">
+      <label for="password">Name <i>(optional)</i></label>
+      <input name="name" id="name" placeholder="Max Power" type="text">
+      <input type="submit" value="submit"/>
+      <small>1 email input, 1 text input, both optional.</small>
+    </p>
+  </form>
+
+  <!-- test form 3 -->
+  <h2>Register Form</h2>
+
+  <form id="register" action="#submitted-register">
+    <p>
+      <label for="email">Email</label>
+      <input required name="email" id="email" placeholder="name@example.com" type="email">
+      <label for="password">Password</label>
+      <input required name="password" id="password" placeholder="password" type="password">
+      <input type="submit" value="submit"/>
+      <small>1 required email input, 1 required text input.</small>
+    </p>
+  </form>
+  
+  <!-- test form 1 -->
+  <h2>Login Form</h2>
+
+  <form id="login" action="#submitted-login">
+    <p>
+      <label for="username">Username</label>
+      <input required name="username" id="username" placeholder="username" type="text">
+      <label for="password">Password</label>
+      <input required name="password" id="password" placeholder="password" type="password">
+      <input type="submit" value="submit"/>
+      <small>2 required inputs.</small>
+    </p>
+  </form>
+
+  <!-- test form 2 -->
+  <h2>Comment Form</h2>
+
+  <form id="comment" action="#submitted-comment">
+    <p>
+      <label for="comment">Comment</label>
+      <input required name="comment" id="comment" placeholder="Live long and prosper." type="text">
+      <label for="password">Name <i>(optional)</i></label>
+      <input name="name" id="name" placeholder="Max Power" type="text">
+      <input type="submit" value="submit"/>
+      <small>1 required input, 1 optional input</small> 
+    </p>
+  </form>
+
+
+  
+  <!-- load scripts to be tested -->
+  <script src="lib/jquery-1.11.2/jquery.js"></script>
+  <script src="../jquery.validation_email.js"></script>
+  
+  <!-- run tests of html5 validation plugin -->
+  <script>
+  // log to js console.
+  function log(m){window.console&&console.log&&console.log(m)};
+  //log("Hello Jasmine Testing World");
+
+  $('form').each(function (form){
+    form=$(this);
+    log(form);
+    
+    // Add novalidate to disable native validaiton in html5 browsers
+    if (window.html5) {
+      form.attr('novalidate','novalidate');
+    }
+
+    // load validation script to all forms
+    form.validate();
+  });
+
+  //describe("Test introduction", function() {
+  //  it("Can make assertions", function() {
+  //    expect(true).toBe(true);
+  //  });
+  //});
+
+  describe("A form with non-required email input validation", function(){
+    var form, emailInput, otherInput, stubSubmit;
+
+    beforeEach(function() {
+      form = $('#signup');
+      emailInput = form.find("input[type='email']");
+      otherInput = form.find("input[type!='email']").filter("[type!='submit']");
+      stubSubmit = function(){ 
+        return false; 
+      };
+      form.on('submit', stubSubmit);
+      form.find("input[type!='submit'],textarea").val(''); // set blank
+    });
+    
+    afterEach(function(){
+      form.find('.feedback').remove();
+      form.off('submit', stubSubmit);
+      emailInput.add(otherInput).val('');
+    });
+
+    it("has one email input", function() {
+      expect(emailInput.length).toBe(1);
+    });
+
+    it("does not give feedback with all optional blank values", function(){
+      form.submit();
+      expect( form.html() ).not.toContain("feedback");
+    });
+
+    it("does give feedback with nonemail value used for email input", function(){
+      emailInput.val('not v@lid email address.');
+      form.submit();
+      expect( form.html() ).toContain("feedback");
+    });
+
+    it("gives email specific feedback for invalid email addres", function() {
+      emailInput.val('not v@lid email address.');
+      form.submit();
+      feedback = form.find('.feedback');
+      expect( feedback.text() ).toMatch(/email/);
+    });
+  });
+
+
+  describe("A form with required email input validation", function(){
+
+    describe("Register form has email and one other required input", function() {
+      var form = $('#register'),
+          emailInput = form.find("input[type='email']");
+
+      it("loaded a form", function() {
+        expect(form.length).toBe(1);
+        expect(form.filter('form').length).toBe(1);
+      });
+
+      it("has at least one email input", function() {
+        expect(emailInput.length).toBeGreaterThan(0);
+      });
+      it("has at least one required email input", function() {
+        var requiredEmailInput = emailInput.filter('[required]')
+        expect(requiredEmailInput.length).toBeGreaterThan(0);
+      });
+
+      it("has two required attributes", function(){
+        var requiredInputs = form.find('input[required]');
+        expect(requiredInputs.length).toBe(2);
+      });
+    });
+
+    describe("Register form has not been submitted", function() {
+      var form = $('#register');
+      var formAction = form.attr('action');
+      var currentUrl = location.href;
+      
+      it("has a current location different then form submit action", function(){
+        expect(location.href).not.toContain(formAction);
+      });
+    });
+
+    describe("Register form is invalid with nonemail submitted", function() {
+      var form, emailInput, otherInput, stubSubmit;
+
+      beforeEach(function() {
+        form = $('#register');
+        emailInput = form.find("input[type='email']");
+        otherInput = form.find("input[type!='email']").filter("[type!='submit']");
+        stubSubmit = function(){ 
+          return false; 
+        };
+        form.on('submit', stubSubmit);
+        form.find("input[type!='submit'],textarea").val(''); // set blank
+      });
+
+      afterEach(function(){
+        form.find('.feedback').remove();
+        form.off('submit', stubSubmit);
+        emailInput.add(otherInput).val('');
+      });
+
+      it("has no initial feedback", function(){
+        expect( form.html() ).not.toContain("feedback");
+      });
+
+      it("gives feedback submitting with two blank inputs", function(){
+        form.submit();
+        expect( form.html() ).toContain("feedback");
+      });
+
+      it("gives no feedback with valid inputs", function(){
+        emailInput.val('robin@sherwood.org');
+        otherInput.val('herioc outlaw');
+        form.submit();
+        expect( form.html() ).not.toContain("feedback");
+      });
+
+      it("gives feedback when required has non-email value", function(){
+        emailInput.val('123 Fake Street');
+        otherInput.val('free style');
+        form.submit();
+        expect( form.html() ).toContain("feedback");
+      });
+      //email specific 
+
+      it("feedback is email specific with email validation error", function(){
+        emailInput.val('123 Fake Street');
+        otherInput.val('free style');
+        form.submit();
+        var feedback = form.find('.feedback');
+        expect( feedback.text() ).toMatch(/email/);
+      });
+    });
+    
+  });
+  
+  // ---- Previous test suite ---- // 
+  describe("Forms with required input validation", function() {
+
+    describe("Login form with two required inputs", function() {
+      var form = $('#login');
+
+      it("loaded a form", function() {
+        expect(form.length).toBe(1);
+        expect(form.filter('form').length).toBe(1);
+      });
+
+      it("has at least one required input", function() {
+        var requiredInputs = form.find('input[required]');
+        expect(requiredInputs.length).toBeGreaterThan(0);
+      });
+
+      it("has two required attributes", function(){
+        var requiredInputs = form.find('input[required]');
+        expect(requiredInputs.length).toBe(2);
+      });
+    });
+
+    describe("Login form has not been submitted", function() {
+      var form = $('#login');
+      var formAction = form.attr('action');
+      var currentUrl = location.href;
+      
+      it("has a current location different then form submit action", function(){
+        expect(location.href).not.toContain(formAction);
+      });
+    });
+
+    describe("Comment form has not been submitted", function() {
+      var form = $('#comment');
+      var formAction = form.attr('action');
+      var currentUrl = location.href;
+      
+      it("has a current location different then form submit action", function(){
+        expect(location.href).not.toContain(formAction);
+      });
+    });
+
+    describe("Validating form with two required attributes", function() {
+      var form, requiredInputs, submitCallback, formAction, currentLocation;
+
+      beforeEach(function() {
+        form = $('#login');
+        requiredInputs = form.find('input[required]');
+        formAction = form.attr('action');
+        currentLocation = location.href;
+
+        // set all required inputs to blank value
+        requiredInputs.each( function(i) {
+          this.value = '';   
+        });
+      });
+      afterEach(function(){
+        form.find('.feedback').remove();
+      });
+     
+      it("stop submission with all required atttributes blank", function(){
+        form.submit();
+        expect(currentLocation).not.toContain(formAction);
+      });
+
+      it("stops submission when one required is blank blank, one filled out", function(){
+        requiredInputs[0].value = 'Johnny';
+        requiredInputs[1].value = ''; // blank 
+        form.submit();
+        expect(currentLocation).not.toContain(formAction);
+      }); 
+
+      it("gives polite feedback after trying to submit an invalid form", function(){
+        expect( form.text() ).not.toContain("Please");
+        form.submit();
+        expect( form.text() ).toContain("Please");
+      });
+    });
+
+    describe("Validating form with one required input, one optional input", function(){
+      var form, requiredInput, formAction, currentLocation;;
+
+      beforeEach(function() {
+        form = $('#comment');
+        requiredInput = form.find('input[required]');
+        formAction = form.attr('action');
+        currentLocation = location.href;
+      });
+      afterEach(function(){
+        form.find('.feedback').remove();
+      });
+
+      it("loaded a form", function() {
+        expect(form.length).toBe(1);
+        expect(form.filter('form').length).toBe(1);
+      });
+
+      it("has two inputs", function(){
+        var formInputs = form.find('input').not('[type="submit"]');
+        expect(formInputs.length).toBe(2);
+      });
+
+      it("has one required input", function() {
+        var requiredInput = form.find('input').filter('[required]');
+        expect(requiredInput.length).toBe(1);
+      });
+
+      it("is not valid with missing required input", function() {
+        requiredInput.val('');
+        expect( form.html() ).not.toContain("feedback");
+        form.submit();
+        expect(currentLocation).not.toContain(formAction);
+        expect( form.html() ).toContain("feedback");
+      });
+
+      it("is valid with a blank optional, and nonblank required input", function() {
+        // prevent actual form submission
+        form.submit(function(){ 
+          return false; 
+        });
+        // fill in required input, expect no feedback
+        requiredInput.val("name@example.com");
+        form.submit();
+        expect( form.html() ).not.toContain("feedback");
+
+        // make required input blank, expect feedback
+        requiredInput.val('');
+        form.submit();
+        expect( form.html() ).toContain("feedback");
+      });
+
+    });
+  });
+
+
+  </script>
+
+</body>
+</html> 
